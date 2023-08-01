@@ -24,7 +24,7 @@ class verifiedUserService {
         try {
           const discordUser = await getUser(user.discordUser.id);
           if (!discordUser) {
-            await this.repository.delete(user);
+            await this.repository.remove(user);
             return;
           }
           const lemmyUser = await this.communityService.getUser(
@@ -78,11 +78,16 @@ class verifiedUserService {
   ) {
     const found = await this.repository.findOne({
       where: {
-        $or: [{ id }, { lemmyUser }, { discordUser }],
+        $or: [
+          { id: { $eq: id } },
+          { "lemmyUser.id": { $eq: lemmyUser?.id } },
+          { "discordUser.id": { $eq: discordUser?.id } },
+        ],
       },
     });
+    console.log(found)
     if (!found) throw new Error("Connection not found!");
-    return await this.repository.delete(found);
+    return await this.repository.remove(found);
   }
 
   async getConnection(lemmyUser?: Person, discordUser?: User) {

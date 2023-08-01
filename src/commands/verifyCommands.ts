@@ -52,7 +52,10 @@ export default class VerifyCommands {
       );
     try {
       if (code) {
-        const verified = this.verifiedUserService.verifyCode(parseInt(code), false);
+        const verified = this.verifiedUserService.verifyCode(
+          Number(code),
+          false
+        );
         if (verified.length === 0) {
           await interaction.editReply("Code not found!");
           return;
@@ -60,7 +63,7 @@ export default class VerifyCommands {
 
         const user = verified[0].lemmyUser;
         const discordUser = interaction.user;
-        if(user.name !== userId) {
+        if (user.name !== userId) {
           await interaction.editReply("Code not found!");
           return;
         }
@@ -138,17 +141,16 @@ export default class VerifyCommands {
       });
       collector?.on("collect", async (i) => {
         await i.deferReply({ ephemeral: true });
-        try{
+        try {
           if (i.customId === "verify-user") {
-
-          const code = await this.verifiedUserService.createVerificationCode(
-            user.person_view.person,
-            interaction.member as GuildMember
-          );
-          client.createPrivateMessage({
-            auth: getAuth(),
-            recipient_id: user.person_view.person.id,
-            content: `Hello ${user.person_view.person.name}! 
+            const code = await this.verifiedUserService.createVerificationCode(
+              user.person_view.person,
+              interaction.member as GuildMember
+            );
+            client.createPrivateMessage({
+              auth: getAuth(),
+              recipient_id: user.person_view.person.id,
+              content: `Hello ${user.person_view.person.name}! 
 
 If you requested from discord a verification message verify yourself with:
 
@@ -159,19 +161,19 @@ This is to verify that you are the owner of the discord account \`${interaction.
 If you did not request this verification, please ignore this message! If i keep sending you messages, please block me!  
 
 This message is automated! Please dont reply to this message!`,
-          });
+            });
 
-          await i.editReply({
-            content:
-              "Ok, we i will send you a dm on lemmy with a verification code!",
-          });
-        }
-        if (i.customId === "deny-user") {
-          await i.editReply({
-            content: "Ok!",
-          });
-        }
-        } catch(exc) {
+            await i.editReply({
+              content:
+                "Ok, we i will send you a dm on lemmy with a verification code!",
+            });
+          }
+          if (i.customId === "deny-user") {
+            await i.editReply({
+              content: "Ok!",
+            });
+          }
+        } catch (exc) {
           console.log(exc);
           await i.editReply({
             content: "Something went wrong! Are you already verified?",
@@ -215,12 +217,11 @@ This message is automated! Please dont reply to this message!`,
 
       await user.roles.remove(config.verifiedRole!);
 
-      if (interaction)
-        await this.verifiedUserService.removeConnection(
-          undefined,
-          undefined,
-          interaction.user
-        );
+      console.log(await this.verifiedUserService.removeConnection(
+        undefined,
+        undefined,
+        user.user
+      ));
       await interaction.editReply(`${user.user.tag} is now unverified!`);
     } catch (exc) {
       console.log(exc);

@@ -30,7 +30,7 @@ class communityConfigService {
   }
 
   async removeCommunityConfig(config: communityConfigModel) {
-    return await this.repository.delete(config);
+    return await this.repository.remove(config);
   }
 
   async updateCommunityConfig(config: communityConfigModel) {

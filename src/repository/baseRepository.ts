@@ -19,9 +19,11 @@ class baseRepository<T extends ObjectLiteral> {
   create() {
     return this.repository.create();
   }
-  async delete(item: T) {
-    return await this.repository.remove(item);
+
+  async remove(item: T) {
+    return await this.repository.delete(item);
   }
+
   async save(item: T) {
     return await this.repository.save(item);
   }
