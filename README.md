@@ -1,4 +1,4 @@
-# rooki-lemmy-bot
+# rooki-lemmy-verification-bot
 
 Still in Progress!
 
