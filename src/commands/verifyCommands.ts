@@ -150,20 +150,20 @@ export default class VerifyCommands {
             recipient_id: user.person_view.person.id,
             content: `Hello ${user.person_view.person.name}! 
 
-If you requested from discord a verification message verify yourself with:
+If you requested a verification message from discord, then verify yourself with:
 
-1. Execute in the Discord the slash command: \`/verify userid:${userId} code:${code}\`  
-2. Follow this link: ${process.env.PUBLIC_URL}/verify/${code} 
+1. Executing the verify command in discord like this: \`/verify userid:${userId} code:${code}\`  
+2. Following this link: ${process.env.PUBLIC_URL}/verify/${code} 
 
 This is to verify that you are the owner of the discord account \`${interaction.user.tag}\`!  
-If you did not request this verification, please ignore this message! If i keep sending you messages, please block me!  
+If you did not request this verification, please ignore this message! If I keep sending you messages, please block me!  
 
 This message is automated! Please dont reply to this message!`,
           });
 
           await i.editReply({
             content:
-              "Ok, we i will send you a dm on lemmy with a verification code!",
+              "Ok, I will send you a dm on lemmy with a verification code!",
           });
         }
         if (i.customId === "deny-user") {
@@ -256,7 +256,7 @@ This message is automated! Please dont reply to this message!`,
           
           The Rules are simple: 
 
-          The same as in the [lemmy world](https://mastodon.world/about) instance and of course use your brain!
+          They are the same as in the [lemmy.world](https://mastodon.world/about) instance and of course, use your brain!
 
           Please verify yourself with **\`/verify\`**!
           
