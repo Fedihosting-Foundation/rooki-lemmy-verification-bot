@@ -9,6 +9,7 @@ import Container, { Service } from "typedi";
 import connection from "./connection";
 import { instanceUrl } from "./helpers/lemmyHelper";
 import { startServer } from "./server/api";
+import verifiedUserService from "./services/verifiedUserService";
 DIService.engine = typeDiDependencyRegistryEngine
   .setService(Service)
   .setInjector(Container);
@@ -21,6 +22,12 @@ process.on("uncaughtException", (error) => {
     process.exit(1);
   }, 5000);
 });
+
+
+export const extended_guilds: string[] = [
+  "932286006156222495",
+  "1128644575276318801"
+]
 
 export const bot = new Client({
   // To use only guild command
@@ -101,6 +108,8 @@ async function start() {
     console.log("BOT_TOKEN NOT FOUND. Doesnt starting discord Bot.");
   }
   startServer()
+
+  typeDiDependencyRegistryEngine.getService(verifiedUserService);
 }
 
 start();

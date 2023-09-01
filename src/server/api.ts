@@ -2,10 +2,14 @@ import express from "express";
 import verifiedUserService from "../services/verifiedUserService";
 import { typeDiDependencyRegistryEngine } from "discordx";
 import communityConfigService from "../services/communityConfigService";
-import { bot } from "../main";
+import { RateLimiterMemory } from "rate-limiter-flexible";
 
 let verifiedServ: verifiedUserService | null;
-
+const opts = {
+  points: 2,
+  duration: 60 * 5,
+};
+const rateLimiter = new RateLimiterMemory(opts);
 function getVerifiedService() {
   if (!verifiedServ) {
     verifiedServ =
@@ -32,7 +36,33 @@ app.get("/", (req, res) => {
 
 app.get("/verify/:code", async (req, res) => {
   try {
-    const code = parseInt(req.params.code);
+    try {
+      const rateLimiterRes = await rateLimiter.consume(req.ip);
+      const headers = {
+        "Retry-After": rateLimiterRes.msBeforeNext / 1000,
+        "X-RateLimit-Limit": opts.points,
+        "X-RateLimit-Remaining": rateLimiterRes.remainingPoints,
+        "X-RateLimit-Reset": new Date(Date.now() + rateLimiterRes.msBeforeNext),
+      };
+      res.set(headers);
+    } catch (rateLimiterRes: any) {
+      const headers = {
+        "Retry-After": rateLimiterRes.msBeforeNext / 1000,
+        "X-RateLimit-Limit": opts.points,
+        "X-RateLimit-Remaining": rateLimiterRes.remainingPoints,
+        "X-RateLimit-Reset": new Date(Date.now() + rateLimiterRes.msBeforeNext),
+      };
+      res.set(headers);
+      res
+        .status(429)
+        .send(
+          "Too many requests! Try again in " +
+            rateLimiterRes.msBeforeNext +
+            "ms"
+        );
+      return;
+    }
+    const code = Number(req.params.code);
     const verifiedService = getVerifiedService();
     if (!verifiedService) {
       res.status(500).send("Error: Service not found");
@@ -45,19 +75,50 @@ app.get("/verify/:code", async (req, res) => {
     }
     const user = verified[0].lemmyUser;
     const discordUser = verified[0].discordUser;
-
+    try {
+      const rateLimiterRes = await rateLimiter.consume(
+        user.person_view.person.id
+      );
+      const headers = {
+        "Retry-After": rateLimiterRes.msBeforeNext / 1000,
+        "X-RateLimit-Limit": opts.points,
+        "X-RateLimit-Remaining": rateLimiterRes.remainingPoints,
+        "X-RateLimit-Reset": new Date(Date.now() + rateLimiterRes.msBeforeNext),
+      };
+      res.set(headers);
+    } catch (rateLimiterRes: any) {
+      const headers = {
+        "Retry-After": rateLimiterRes.msBeforeNext / 1000,
+        "X-RateLimit-Limit": opts.points,
+        "X-RateLimit-Remaining": rateLimiterRes.remainingPoints,
+        "X-RateLimit-Reset": new Date(Date.now() + rateLimiterRes.msBeforeNext),
+      };
+      res.set(headers);
+      res
+        .status(429)
+        .send(
+          "Too many requests for that user! Try again in " +
+            rateLimiterRes.msBeforeNext +
+            "ms"
+        );
+      return;
+    }
     const config = await getCommunityConfigService()?.getCommunityConfig(
       discordUser.guild.id
     );
 
-    if (!config || !config.verifiedRole) {
+    if (!config) {
       res.status(500).send("Error: Community not configured");
       return;
     }
 
-    await discordUser.roles.add(config.verifiedRole);
+    verifiedService
+      .createConnection(user, discordUser.user)
+      .then((x) => {
+        console.log("Created connection", x);
+      })
+      .catch((x) => console.log("Error creating connection", x));
 
-    await verifiedService.createConnection(user, discordUser.user);
     res.send("Successfully authenticated! You can close this page now!");
   } catch (e) {
     console.log(e);

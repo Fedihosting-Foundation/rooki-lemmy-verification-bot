@@ -1,8 +1,6 @@
 import { Community } from "lemmy-js-client";
 import { Column, Entity } from "typeorm";
 import baseModel from "./baseModel";
-import {
-} from "./iConfig";
 
 @Entity({ name: "rooki_community_config" })
 export default class communityConfigModel extends baseModel {
@@ -14,4 +12,16 @@ export default class communityConfigModel extends baseModel {
 
   @Column()
   welcomeChannel?: string;
+
+  @Column()
+  logChannel?: string;
+
+  @Column()
+  quarantineRole?: string;
+
+  @Column()
+  communityCatgory: string[] = [];
+
+  @Column()
+  communities: {communityId: number, channelId: string, roleId: string}[] = [];
 }

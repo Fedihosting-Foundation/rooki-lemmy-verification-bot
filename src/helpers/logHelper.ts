@@ -8,10 +8,13 @@ import {
   PostReportView,
   CommentReportView,
   Comment,
-  PersonView,
   PersonAggregates,
 } from "lemmy-js-client";
-import { instanceUrl } from "./lemmyHelper";
+import {
+  extractInstanceFromActorId,
+  getActorId,
+  instanceUrl,
+} from "./lemmyHelper";
 
 export default class LogHelper {
   static commentToEmbed({
@@ -210,20 +213,40 @@ export default class LogHelper {
     return [embed, commentEmbed];
   }
 
-  static userToEmbed({ counts, person }: {counts?: PersonAggregates, person: Person }) {
+  static userToEmbed({
+    counts,
+    person,
+  }: {
+    counts?: PersonAggregates;
+    person: Person;
+  }) {
     const embed = new EmbedBuilder()
       .setTitle("Person Detail")
       .setDescription(person.bio || "**User has no Bio**")
       .setAuthor({
-        name: person.name,
+        name: person.local
+          ? person.name
+          : getActorId(
+              extractInstanceFromActorId(person.actor_id),
+              person.name
+            ),
         iconURL: person.avatar ? person.avatar : undefined,
       })
       .setTimestamp(new Date(person.published + "Z"))
       .addFields([
         { name: "ID", value: String(person.id), inline: true },
         { name: "Admin", value: person.admin ? "Yes" : "No", inline: true },
-              ])
-      .setURL(`${instanceUrl}/u/${person.name}`)
+      ])
+      .setURL(
+        `${instanceUrl}/u/${
+          person.local
+            ? person.name
+            : getActorId(
+                extractInstanceFromActorId(person.actor_id),
+                person.name
+              )
+        }`
+      )
       .setFooter({
         text: `User`,
       });

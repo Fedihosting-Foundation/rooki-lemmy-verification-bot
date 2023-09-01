@@ -8,5 +8,5 @@ export default class verifiedUserModel extends baseModel  {
     @Column()
     lemmyUser: Person;
     @Column()
-    discordUser: User | GuildMember;
+    discordUser: User;
 }

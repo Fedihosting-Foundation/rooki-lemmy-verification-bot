@@ -21,7 +21,7 @@ class baseRepository<T extends ObjectLiteral> {
   }
 
   async remove(item: T) {
-    return await this.repository.delete(item);
+    return await this.repository.remove(item);
   }
 
   async save(item: T) {

@@ -6,6 +6,11 @@ import CommunityService from "../services/communityService";
 export const extractInstanceFromActorId = (actorId: string) =>
   actorId.match(/https?:\/\/(.*)\/(?:c|u|m)\/.*/)![1];
 
+  export const extractUserFromActorId = (actorId: string) =>
+  actorId.match(/https?:\/\/(.*)\/(?:c|u|m)\/(.*)/)![2];
+  
+  export const getActorId = (instance: string, user: string) => `${user}@${instance}`;
+  
 export function sleep(ms: number) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
