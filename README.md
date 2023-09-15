@@ -6,7 +6,7 @@ Still in Progress!
 
 1. Lemmy Account ( Marked as Bot of course )
 2. A Mongodb Server (Best use self hosted or get one for free on mongodb compass website )
-3. (optional) A Discord Bot Token ( Required if you want to log anything )
+3. A Discord Bot Token 
 
 ## Setup
 
