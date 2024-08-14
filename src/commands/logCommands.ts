@@ -45,11 +45,11 @@ export default class LogCommands {
     await interaction.deferReply();
 
     try {
-      const post = await client.getPost({
+      const comment = await client.getComment({
         id: postId,
       });
 
-      const embed = LogHelper.postToEmbed(post.post_view);
+      const embed = LogHelper.commentToEmbed(comment.comment_view);
 
       await interaction.editReply({ embeds: [embed] });
     } catch (exc) {
