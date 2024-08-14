@@ -42,7 +42,7 @@ export default class LogHelper {
         iconURL: creator.avatar ? creator.avatar : undefined,
       })
       .setURL(`${instanceUrl}/comment/${comment.id}`)
-      .setTimestamp(new Date(counts.published + "Z"))
+      .setTimestamp(new Date(counts.published))
       .setFooter({
         text: `Posted in ${community.name}`,
         iconURL: community.icon ? `${community.icon}` : undefined,
@@ -104,7 +104,7 @@ export default class LogHelper {
           ? post.body.slice(0, 4000) + "..."
           : post.body) || "No Body"
       )
-      .setTimestamp(new Date(counts.published + "Z"))
+      .setTimestamp(new Date(counts.published))
       .setFooter({
         text: `Posted in ${community.name}`,
         iconURL: community.icon ? `${community.icon}` : undefined,
@@ -171,7 +171,7 @@ export default class LogHelper {
         iconURL: creator.avatar ? creator.avatar : undefined,
       })
       .setDescription(post_report.reason)
-      .setTimestamp(new Date(post_report.published + "Z"))
+      .setTimestamp(new Date(post_report.published))
       .setFooter({
         text: `Reported in ${community.name}`,
         iconURL: community.icon ? `${community.icon}` : undefined,
@@ -204,7 +204,7 @@ export default class LogHelper {
         iconURL: creator.avatar ? creator.avatar : undefined,
       })
       .setDescription(comment_report.reason)
-      .setTimestamp(new Date(comment_report.published + "Z"))
+      .setTimestamp(new Date(comment_report.published))
       .setFooter({
         text: `Reported in ${community.name}`,
         iconURL: community.icon ? `${community.icon}` : undefined,
@@ -216,9 +216,11 @@ export default class LogHelper {
   static userToEmbed({
     counts,
     person,
+    is_admin,
   }: {
     counts?: PersonAggregates;
     person: Person;
+    is_admin?: boolean;
   }) {
     const embed = new EmbedBuilder()
       .setTitle("Person Detail")
@@ -232,10 +234,10 @@ export default class LogHelper {
             ),
         iconURL: person.avatar ? person.avatar : undefined,
       })
-      .setTimestamp(new Date(person.published + "Z"))
+      .setTimestamp(new Date(person.published))
       .addFields([
         { name: "ID", value: String(person.id), inline: true },
-        { name: "Admin", value: person.admin ? "Yes" : "No", inline: true },
+        { name: "Admin", value: is_admin ? "Yes" : is_admin === undefined ? "Unknown" : "No", inline: true },
       ])
       .setURL(
         `${instanceUrl}/u/${
@@ -255,12 +257,7 @@ export default class LogHelper {
       embed.addFields([
         { name: "Posts", value: String(counts.post_count), inline: true },
         { name: "Comments", value: String(counts.comment_count), inline: true },
-        {
-          name: "Comment Score",
-          value: String(counts.comment_score),
-          inline: true,
-        },
-        { name: "Post Score", value: String(counts.post_score), inline: true },
+
       ]);
     }
 

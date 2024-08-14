@@ -174,7 +174,6 @@ export default class VerifyCommands {
         return;
       }
       const user = await client.getPersonDetails({
-        auth: getAuth(),
         username: username,
       });
 
@@ -235,7 +234,6 @@ export default class VerifyCommands {
               interaction.member as GuildMember
             );
             client.createPrivateMessage({
-              auth: getAuth(),
               recipient_id: user.person_view.person.id,
               content: `Hello ${user.person_view.person.name}! 
 

@@ -19,7 +19,6 @@ export default class LogCommands {
     await interaction.deferReply();
     try {
       const post = await client.getPost({
-        auth: getAuth(),
         id: postId,
       });
 
@@ -47,7 +46,6 @@ export default class LogCommands {
 
     try {
       const post = await client.getPost({
-        auth: getAuth(),
         id: postId,
       });
 
@@ -74,7 +72,6 @@ export default class LogCommands {
     await interaction.deferReply();
     try {
       const user = await client.getPersonDetails({
-        auth: getAuth(),
         username: userId,
       });
 

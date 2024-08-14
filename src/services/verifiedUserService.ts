@@ -7,7 +7,7 @@ import {
 import { Inject, Service } from "typedi";
 import "reflect-metadata";
 import verifiedUserRepository from "../repository/verifiedUserRepository";
-import { BaseGuildTextChannel, Guild, GuildMember, User } from "discord.js";
+import { BaseGuildTextChannel, DiscordAPIError, Guild, GuildMember, User } from "discord.js";
 import { ObjectId } from "mongodb";
 import CommunityService from "./communityService";
 import BetterQueue from "better-queue";
@@ -92,6 +92,7 @@ class verifiedUserService {
                 }
               })
               .catch((e) => {
+                console.log("User not found! " + user.discordUser.id);
                 console.log(e);
               });
             await sleep(1000);
@@ -104,12 +105,20 @@ class verifiedUserService {
             `Updated ${user.discordUser.username || user.discordUser.id}`
           );
         } catch (e) {
+          if(e instanceof DiscordAPIError){
+            console.log("Discord API Error");
+            console.log(e);
+            if(e.code === 10007){
+              console.log("Removing user from database");
+              await this.removeConnection(undefined, undefined, user.discordUser);
+            }
+          }
           console.log(e);
         }
       });
       cb(null, data);
     },
-    batchDelay: 500,
+    batchDelay: 500,    
     batchSize: 2,
     afterProcessDelay: 15000,
   });
@@ -379,7 +388,6 @@ class verifiedUserService {
       id: communityId,
     });
     return (
-      connection.lemmyUser.admin ||
       (community &&
         community.moderators.some(
           (m) => m.moderator.id === connection.lemmyUser.id
@@ -406,8 +414,8 @@ class verifiedUserService {
       person.person_view.person.id +
         (Math.random() * 100) / 100 +
         Math.random() *
-          (person.person_view.counts.post_score +
-            person.person_view.counts.comment_score +
+          (person.person_view.counts.post_count +
+            person.person_view.counts.comment_count +
             Math.random() * 100)
     );
     this.codes.push({

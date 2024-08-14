@@ -149,7 +149,7 @@ export default class UtilCommands {
       return;
     }
 
-    const embed = LogHelper.userToEmbed({ person: verifiedUser.lemmyUser });
+    const embed = LogHelper.userToEmbed({ person: verifiedUser.lemmyUser  });
 
     await interaction.editReply({
       content: `**Discord:** <@${verifiedUser.discordUser.id}>

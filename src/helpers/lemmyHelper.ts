@@ -20,7 +20,7 @@ export function sleep(ms: number) {
 export const instanceUrl = process.env.LEMMY_URL || "https://lemmy.world";
 
 export const isModOfCommunityPersonResponse = async (user: GetPersonDetailsResponse, communityId: number) => {
-  if(user.person_view.person.admin) return true;
+  if(user.person_view.is_admin) return true;
   try {
     const modIds = user.moderates.map((mod) => mod.community.id);
     return modIds.includes(communityId);
@@ -30,8 +30,8 @@ export const isModOfCommunityPersonResponse = async (user: GetPersonDetailsRespo
   }
 };
 
-export const isModOfCommunityPerson = async (user: Person, communityId: number) => {
-  if(user.admin) return true;
+export const isModOfCommunityPerson = async (user: Person, communityId: number, is_admin: boolean) => {
+  if(is_admin) return true;
   try {
     const commService = typeDiDependencyRegistryEngine.getService(CommunityService);
     if(!commService) return false;

@@ -23,11 +23,10 @@ process.on("uncaughtException", (error) => {
   }, 5000);
 });
 
-
 export const extended_guilds: string[] = [
   "932286006156222495",
-  "1128644575276318801"
-]
+  "1128644575276318801",
+];
 
 export const bot = new Client({
   // To use only guild command
@@ -89,6 +88,10 @@ async function start() {
     username_or_email: process.env.LEMMY_USERNAME || "",
   });
 
+  client.setHeaders({
+    Authorization: `Bearer ${results.jwt}`,
+  });
+
   if (!results.jwt) {
     throw new Error("Could not log in to Lemmy");
   }
@@ -107,7 +110,7 @@ async function start() {
   } else {
     console.log("BOT_TOKEN NOT FOUND. Doesnt starting discord Bot.");
   }
-  startServer()
+  startServer();
 
   typeDiDependencyRegistryEngine.getService(verifiedUserService);
 }
