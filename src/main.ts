@@ -89,6 +89,7 @@ async function start() {
   });
 
   client.setHeaders({
+    "User-Agent": "rooki-bot",
     Authorization: `Bearer ${results.jwt}`,
   });
 

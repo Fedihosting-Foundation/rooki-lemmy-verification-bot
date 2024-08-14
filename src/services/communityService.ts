@@ -33,7 +33,6 @@ export default class CommunityService {
         if (!force && this.userCache[data.name])
           return this.userCache[data.name];
         const user = await client.getPersonDetails({
-          auth: getAuth(),
           username: data.name,
         });
         const now = new Date().getTime();
@@ -44,7 +43,6 @@ export default class CommunityService {
       } else {
         if (!force && this.userCache[data.id]) return this.userCache[data.id];
         const user = await client.getPersonDetails({
-          auth: getAuth(),
           person_id: data.id,
         });
         const now = new Date().getTime();
@@ -74,7 +72,6 @@ export default class CommunityService {
         if (!force && this.communityCache[data.name])
           return this.communityCache[data.name];
         const community = await client.getCommunity({
-          auth: getAuth(),
           name: data.name,
         });
         const now = new Date().getTime();
@@ -86,7 +83,6 @@ export default class CommunityService {
         if (!force && this.communityCache[data.id])
           return this.communityCache[data.id];
         const community = await client.getCommunity({
-          auth: getAuth(),
           id: data.id,
         });
         const now = new Date().getTime();
