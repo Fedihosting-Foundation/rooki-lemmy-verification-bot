@@ -330,8 +330,11 @@ This message is automated! Please dont reply to this message!`,
     oldMember,
     newMember,
   ]: ArgsOf<"guildMemberUpdate">) {
-    console.log(newMember.pending, oldMember.pending);
-    if (!oldMember.user.bot && (oldMember.pending && !newMember.pending || !newMember.guild.features.includes("MEMBER_VERIFICATION_GATE_ENABLED"))) {
+    if (
+      !oldMember.user.bot &&
+      ((oldMember.pending && !newMember.pending) ||
+        !newMember.guild.features.includes("MEMBER_VERIFICATION_GATE_ENABLED"))
+    ) {
       const config = await this.communityConfigService.getCommunityConfig(
         newMember.guild.id
       );
@@ -424,5 +427,29 @@ Have fun!`
         "Something went wrong ( User didnt had a connection? )"
       );
     }
+  }
+
+  @Slash({
+    description: "Clear all broken connections",
+    name: "clearconnections",
+    defaultMemberPermissions: ["ManageRoles"],
+  })
+  async clearconnections(
+    @SlashOption({
+      name: "dryrun",
+      description: "Don't actually clear the connections, just show them",
+      type: ApplicationCommandOptionType.Boolean,
+      required: true,
+    })
+    dryrun: boolean,
+    interaction: CommandInteraction
+  ) {
+    interaction.deferReply({ ephemeral: true });
+    var cleared_connections =
+      this.verifiedUserService.clearBrokenConnections(dryrun);
+
+    await interaction.reply(
+      `Cleared ${(await cleared_connections).length} connections!`
+    );
   }
 }

@@ -109,7 +109,7 @@ async function start() {
     // Log in with your bot token
     await bot.login(process.env.BOT_TOKEN);
   } else {
-    console.log("BOT_TOKEN NOT FOUND. Doesnt starting discord Bot.");
+    console.log("BOT_TOKEN NOT FOUND. Starting server only.");
   }
   startServer();
 

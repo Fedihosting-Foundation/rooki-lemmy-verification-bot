@@ -111,13 +111,17 @@ app.get("/verify/:code", async (req, res) => {
       res.status(500).send("Error: Community not configured");
       return;
     }
-
-    verifiedService
-      .createConnection(user, discordUser.user)
-      .then((x) => {
-        console.log("Created connection", x);
-      })
-      .catch((x) => console.log("Error creating connection", x));
+    try {
+      await verifiedService.createConnection(user, discordUser.user);
+      console.log(
+        `Connection created for ${user.person_view.person.name} and ${discordUser.user.username} in ${discordUser.guild.name}!`
+      );
+    } catch (e) {
+      console.log(
+        `Error creating connection for ${user.person_view.person.name} and ${discordUser.user.username} in ${discordUser.guild.name}!`
+      );
+      console.error(e);
+    }
 
     res.send("Successfully authenticated! You can close this page now!");
   } catch (e) {

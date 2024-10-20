@@ -45,7 +45,7 @@ class verifiedUserService {
         try {
           const discordUser = user.discordUser;
           if (!discordUser) {
-            console.log(
+            console.error(
               `User ${
                 user.discordUser.username || user.discordUser.id
               } not found!`
@@ -91,9 +91,12 @@ class verifiedUserService {
                   await member.roles.remove(role);
                 }
               })
-              .catch((e) => {
-                console.log("User not found! " + user.discordUser.id);
-                console.log(e);
+              .catch(async (e) => {
+                if(e instanceof DiscordAPIError){
+                  console.log("Discord API Error - Quarantine Role");
+                }else{
+                  console.error(e);
+                }
               });
             await sleep(1000);
           });
@@ -101,17 +104,9 @@ class verifiedUserService {
           user.discordUser = discordUser;
           user.lemmyUser = lemmyUser.person_view.person;
           await this.repository.save(user);
-          console.log(
-            `Updated ${user.discordUser.username || user.discordUser.id}`
-          );
         } catch (e) {
           if(e instanceof DiscordAPIError){
-            console.log("Discord API Error");
-            console.log(e);
-            if(e.code === 10007){
-              console.log("Removing user from database");
-              await this.removeConnection(undefined, undefined, user.discordUser);
-            }
+            console.log("Discord API Error - Quarantine Role");
           }
           console.log(e);
         }
@@ -150,7 +145,7 @@ class verifiedUserService {
           user = await guild?.members.fetch(discordUser.id);
         } catch (e) {
           console.log("Failed to fetch user from guild - applyRoles");
-          console.log(e);
+          return;
         }
         if (!user) return;
         try {
@@ -312,7 +307,7 @@ class verifiedUserService {
     await this.applyRoles(lemmyDetails, discordUser);
     const conn = await this.getConnection(lemmyDetails.person_view.person);
     if (conn) {
-      return;
+      return conn;
     }
     const createdConfig = this.repository.create();
     const lemmyUser = lemmyDetails.person_view;
@@ -474,6 +469,31 @@ class verifiedUserService {
         }
       }
       if (i % 5 === 0) sleep(1000);
+    });
+    return purgedUsers;
+  }
+
+  async clearBrokenConnections(dryrun: boolean = false) {
+    // when a user leaves the server, we need to remove the connection
+
+    const users = await this.repository.findAll();
+    const purgedUsers: { user: User; reason: string }[] = [];
+
+    await asyncForEach(users, async (user) => {
+      try {
+        const member = await bot.users.fetch(user.discordUser.id);
+        if (!member) {
+          if (!dryrun) {
+            await this.removeConnection(user.id);
+          }
+          purgedUsers.push({
+            user: user.discordUser,
+            reason: "User is not visible anymore!",
+          });
+        }
+      } catch (e) {
+        console.log(e);
+      }
     });
     return purgedUsers;
   }
